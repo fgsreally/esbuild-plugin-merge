@@ -1,0 +1,27 @@
+// Vitest Snapshot v1
+
+exports[`merge plugins order 1`] = `
+{
+  "bundle": true,
+  "entryPoints": [
+    "test/fixtures/main.ts",
+  ],
+  "format": "esm",
+  "plugins": [
+    {
+      "name": "esbuild-plugin-merge",
+      "setup": [Function],
+    },
+  ],
+  "write": false,
+}
+`;
+
+exports[`merge plugins order 2`] = `
+"// test/fixtures/test.ts
+console.log(\\"test\\");
+
+// test/fixtures/style.css
+console.log(\\"pluginA\\");
+"
+`;

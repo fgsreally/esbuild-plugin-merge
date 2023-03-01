@@ -1,0 +1,15 @@
+{
+  "compilerOptions": {
+    "target": "ESNext", /* Set the JavaScript language version for emitted JavaScript and include compatible library declarations. */
+    "useDefineForClassFields": false, /* Emit ECMAScript-standard-compliant class fields. */
+    "module": "ESNext", /* Specify what module code is generated. */
+    "moduleResolution": "node", /* Specify how TypeScript looks up a file from a given module specifier. */
+    "esModuleInterop": true, /* Emit additional JavaScript to ease support for importing CommonJS modules. This enables 'allowSyntheticDefaultImports' for type compatibility. */
+    "forceConsistentCasingInFileNames": true, /* Ensure that casing is correct in imports. */
+    "strict": true, /* Enable all strict type-checking options. */
+    "strictBindCallApply": false, /* Check that the arguments for 'bind', 'call', and 'apply' methods match the original function. */
+    "strictPropertyInitialization": false, /* Check for class properties that are declared but not set in the constructor. */
+    "suppressImplicitAnyIndexErrors": true,
+    "skipLibCheck": true /* Skip type checking all .d.ts files. */
+  }
+}
