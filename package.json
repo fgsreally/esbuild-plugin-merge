@@ -1,10 +1,11 @@
 {
   "name": "esbuild-plugin-merge",
   "version": "1.0.0",
-  "description": "",
+  "description": "merge esbuild plugins and provide rollup features",
   "main": "dist/index.js",
   "module": "dist/index.mjs",
   "types": "dist/index.d.ts",
+  "files":["dist"],
   "scripts": {
     "test": "vitest",
     "build": "tsup"
