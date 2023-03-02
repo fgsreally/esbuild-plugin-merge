@@ -149,7 +149,7 @@ export function merge(plugins: ResolvedPlugin[]): Plugin {
                             watchListRecord[id] = chokidar.watch(id)
                             watchListRecord[id].on('change', async () => {
                                 for (let cb of proxyBuilder.updateCb) {
-                                    await cb(id, { event: 'delete' })
+                                    await cb(id, { event: 'update' })
 
                                 } rebuild()
                             })
