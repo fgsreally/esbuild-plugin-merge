@@ -12,6 +12,9 @@ test('merge plugins order', async () => {
     let pluginA: ProPlugin = {
         name: 'pluginA',
         setup(build) {
+            build.onStart(()=>{fn('startA')})
+            
+            build.onEnd(()=>{fn('endA')})
 
             initOptions = build.initialOptions
             build.onResolve({ filter: /\.css/, }, (args) => {
@@ -39,6 +42,8 @@ test('merge plugins order', async () => {
     let pluginB: ProPlugin = {
         name: 'pluginB',
         setup(build) {
+build.onStart(()=>{fn('startB')})
+build.onEnd(()=>{fn('endB')})
 
             build.onResolve({ filter: /\.css/, }, (args) => {
                 fn('resolve-pluginB')
@@ -72,11 +77,11 @@ test('merge plugins order', async () => {
 
     expect(initOptions).toMatchSnapshot()
 
-    expect(fn).toHaveBeenCalledTimes(4)
-    expect(fn).toHaveNthReturnedWith(1, 'resolve-pluginB')
-    expect(fn).toHaveNthReturnedWith(2, 'load-pluginB')
-    expect(fn).toHaveNthReturnedWith(3, 'transform-pluginB')
-    expect(fn).toHaveNthReturnedWith(4, 'transform-pluginA')
+    expect(fn).toHaveBeenCalledTimes(8)
+    expect(fn).toHaveNthReturnedWith(3, 'resolve-pluginB')
+    expect(fn).toHaveNthReturnedWith(4, 'load-pluginB')
+    expect(fn).toHaveNthReturnedWith(5, 'transform-pluginB')
+    expect(fn).toHaveNthReturnedWith(6, 'transform-pluginA')
 
     expect(ret.outputFiles[0].text).toMatchSnapshot()
 })

@@ -41,6 +41,9 @@ export const proxyBuilder: ProxyBuilder = {
     onUpdate: (cb) => {
         proxyBuilder.updateCb.push(cb)
     },
+    onStart:(cb)=>{ proxyBuilder.startCb.push(cb)},
+    onEnd:(cb)=>{ proxyBuilder.endCb.push(cb)},
+
     esbuild: null as any,
     initialOptions: null as any,
     resolveCb: [],
@@ -91,8 +94,8 @@ export function merge(plugins: ResolvedPlugin[]): Plugin {
                 })
             }
             for (let cb of proxyBuilder.endCb) {
-                build.onEnd(async () => {
-                    return cb()
+                build.onEnd(async (param) => {
+                    return cb(param)
                 })
             }
 
