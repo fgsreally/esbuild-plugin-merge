@@ -15,34 +15,46 @@ export function post(plugin: ResolvedPlugin) {
 
 }
 
+let isBuilding = false
+let isFirstTime = true
 const watchListRecord: Record<string, chokidar.FSWatcher> = {}
 const watchList: Set<string> = new Set()
 
 
 export const proxyBuilder: ProxyBuilder = {
     onResolve: (options, cb) => {
-        proxyBuilder.resolveCb.push({
-            filter: options.filter,
-            callback: cb
-        })
+        if (isFirstTime)
+            proxyBuilder.resolveCb.push({
+                filter: options.filter,
+                callback: cb
+            })
     },
     onLoad: (options, cb) => {
-        proxyBuilder.loadCb.push({
-            filter: options.filter,
-            callback: cb
-        })
+        if (isFirstTime)
+            proxyBuilder.loadCb.push({
+                filter: options.filter,
+                callback: cb
+            })
     },
     onTransform: (options, cb) => {
-        proxyBuilder.transformCb.push({
-            filter: options.filter,
-            callback: cb
-        })
+        if (isFirstTime)
+            proxyBuilder.transformCb.push({
+                filter: options.filter,
+                callback: cb
+            })
     },
     onUpdate: (cb) => {
-        proxyBuilder.updateCb.push(cb)
+        if (isFirstTime)
+            proxyBuilder.updateCb.push(cb)
     },
-    onStart:(cb)=>{ proxyBuilder.startCb.push(cb)},
-    onEnd:(cb)=>{ proxyBuilder.endCb.push(cb)},
+    onStart: (cb) => {
+        if (isFirstTime)
+            proxyBuilder.startCb.push(cb)
+    },
+    onEnd: (cb) => {
+        if (isFirstTime)
+            proxyBuilder.endCb.push(cb)
+    },
 
     esbuild: null as any,
     initialOptions: null as any,
@@ -51,7 +63,7 @@ export const proxyBuilder: ProxyBuilder = {
     endCb: [],
     loadCb: [],
     transformCb: [],
-    updateCb:[],
+    updateCb: [],
     plugins: []
 }
 
@@ -68,6 +80,10 @@ function sortPlugins(plugins: ResolvedPlugin[],) {
     }
 
     return [...preRet, ...ret, ...postRet]
+}
+
+export function setBuildingState(state: boolean) {
+    isBuilding = state
 }
 
 export function merge(plugins: ResolvedPlugin[]): Plugin {
@@ -87,17 +103,22 @@ export function merge(plugins: ResolvedPlugin[]): Plugin {
                 await plugin.setup(proxyBuilder as any)
             }
 
+            if (isFirstTime) {
+                for (let cb of proxyBuilder.startCb) {
+                    build.onStart(async () => {
+                        return cb()
+                    })
+                }
+            }
 
-            for (let cb of proxyBuilder.startCb) {
-                build.onStart(async () => {
-                    return cb()
-                })
-            }
-            for (let cb of proxyBuilder.endCb) {
-                build.onEnd(async (param) => {
-                    return cb(param)
-                })
-            }
+
+           isFirstTime&& build.onEnd(async (param) => {
+                for (let cb of proxyBuilder.endCb) {
+                    await cb(param)
+                }
+
+            })
+
 
             build.onResolve({ filter: /.*/ }, async (args) => {
                 for (let item of proxyBuilder.resolveCb) {
@@ -129,15 +150,21 @@ export function merge(plugins: ResolvedPlugin[]): Plugin {
                 return loadRes as OnLoadResult
             })
 
-            const rebuild = () => builder({
-                ...build.initialOptions,
-                watch: false,
-            })
+            const rebuild = async () => {
+                isBuilding = true
+                await builder({
+                    ...build.initialOptions,
+                    watch: false,
+                })
+                isBuilding = false
+
+            }
 
 
-            build.onEnd(() => {
+            isFirstTime&& build.onEnd(() => {
 
                 if (build.initialOptions.watch) {
+
                     Object.keys(watchListRecord).forEach((id) => {
                         if (!watchList.has(id)) {
                             watchListRecord[id].close()
@@ -148,17 +175,23 @@ export function merge(plugins: ResolvedPlugin[]): Plugin {
                         if (!Object.keys(watchListRecord).includes(id)) {
                             watchListRecord[id] = chokidar.watch(id)
                             watchListRecord[id].on('change', async () => {
-                                for (let cb of proxyBuilder.updateCb) {
-                                    await cb(id, { event: 'update' })
+                                if (!isBuilding) {
+                                    for (let cb of proxyBuilder.updateCb) {
+                                        await cb(id, { event: 'update' })
 
-                                } rebuild()
+                                    }
+                                    await rebuild()
+                                }
                             })
                             watchListRecord[id].on('unlink', async () => {
-                                for (let cb of proxyBuilder.updateCb) {
-                                    await cb(id, { event: 'delete' })
+                                if (!isBuilding) {
+                                    watchList.delete(id)
+                                    for (let cb of proxyBuilder.updateCb) {
+                                        await cb(id, { event: 'delete' })
 
+                                    }
+                                    await rebuild()
                                 }
-                                rebuild()
                             })
                         }
                     })
@@ -166,6 +199,7 @@ export function merge(plugins: ResolvedPlugin[]): Plugin {
 
 
             })
+            isFirstTime = false
         }
 
     }
