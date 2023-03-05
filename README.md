@@ -11,7 +11,7 @@ let pluginA: ProPlugin = {
   setup(build) {
     initOptions = build.initialOptions;
 
-    //like esbuild
+    //esbuild
     build.onResolve({ filter: /\.css/ }, (args) => {
       //...
     });
@@ -20,7 +20,7 @@ let pluginA: ProPlugin = {
     });
 
     // like rollup/vite
-    build.onTransForm({ filter: /\.css/ }, (args) => {
+    build.onTransform({ filter: /\.css/ }, (loadres,args) => {
       //...
     });
     build.onUpdate((args) => {
@@ -35,7 +35,6 @@ const ret = await build({
 });
 ```
 
-::: warning !
- it depends on `watch` property on initOptions.
+
+ it depends on `watch` property in initOptions.
  not support esbuild^0.17.x
-:::
