@@ -32,7 +32,7 @@ export const proxyBuilder: ProxyBuilder = {
             callback: cb
         })
     },
-    onTransForm: (options, cb) => {
+    onTransform: (options, cb) => {
         proxyBuilder.transformCb.push({
             filter: options.filter,
             callback: cb

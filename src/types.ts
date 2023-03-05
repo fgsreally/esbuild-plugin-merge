@@ -21,7 +21,7 @@ export interface ProxyBuilder {
     onEnd: PluginBuild["onEnd"]
     onResolve: PluginBuild["onResolve"]
     onLoad: PluginBuild["onLoad"]
-    onTransForm: (options: OnLoadOptions, cb: (param: OnLoadResult,args:OnLoadOptions) => void) => void
+    onTransform: (options: OnLoadOptions, cb: (param: OnLoadResult,args:OnLoadArgs) => void) => void
     onUpdate:(cb:(id:string,ctx:{event:'update'|'delete'})=>void)=>void
     plugins: string[]
 }
