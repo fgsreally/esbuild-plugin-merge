@@ -30,7 +30,7 @@ test('merge plugins order', async () => {
                     loader: 'css'
                 }
             })
-            build.onTransForm({ filter: /\.css/ }, (args) => {
+            build.onTransform({ filter: /\.css/ }, (args) => {
                 fn('transform-pluginA')
                 args.contents = 'console.log("pluginA")'
 
@@ -58,7 +58,7 @@ build.onEnd(()=>{fn('endB')})
                 }
             })
 
-            build.onTransForm({ filter: /\.css/ }, () => {
+            build.onTransform({ filter: /\.css/ }, () => {
                 fn('transform-pluginB')
 
             })
